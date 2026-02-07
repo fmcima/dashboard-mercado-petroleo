@@ -108,71 +108,40 @@ a:hover {
 }
 
 /* ============================================
-   MOBILE HAMBURGER MENU
+   MOBILE RESPONSIVE DESIGN
    ============================================ */
 
 /* Mobile breakpoint: 768px and below */
 @media (max-width: 768px) {
 
-    /* Hide default sidebar on mobile - it will slide in when toggled */
-    section[data-testid="stSidebar"] {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
-        z-index: 999;
-        position: fixed;
-        left: 0;
-        top: 0;
-        height: 100vh;
-        width: 280px !important;
-        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Show sidebar when expanded (Streamlit adds this attribute) */
-    section[data-testid="stSidebar"][aria-expanded="true"] {
-        transform: translateX(0);
-    }
-
-    /* Hamburger button styling - Streamlit's default collapse button */
-    button[data-testid="stSidebarCollapseButton"],
-    button[data-testid="collapsedControl"] {
-        position: fixed !important;
-        top: 10px !important;
-        left: 10px !important;
-        z-index: 1000 !important;
+    /* Enhance the sidebar toggle button (Streamlit's built-in hamburger) */
+    button[kind="header"] {
         background-color: #238636 !important;
         border-radius: 8px !important;
-        padding: 8px 12px !important;
-        border: none !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
     }
 
-    button[data-testid="stSidebarCollapseButton"]:hover,
-    button[data-testid="collapsedControl"]:hover {
-        background-color: #2ea043 !important;
-    }
-
-    /* Overlay when menu is open */
-    section[data-testid="stSidebar"][aria-expanded="true"]::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 280px;
-        width: calc(100vw - 280px);
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: -1;
+    /* Sidebar styling on mobile */
+    section[data-testid="stSidebar"] {
+        width: 280px !important;
+        min-width: 280px !important;
     }
 
     /* Adjust main content area */
     .main .block-container {
         padding-left: 1rem !important;
         padding-right: 1rem !important;
-        padding-top: 60px !important;
+        padding-top: 1rem !important;
     }
 
     /* Mobile-friendly title */
     h1 {
-        font-size: 1.5rem !important;
+        font-size: 1.4rem !important;
+        margin-top: 0.5rem !important;
+    }
+
+    h2,
+    h3 {
+        font-size: 1.1rem !important;
     }
 
     /* Stack metrics vertically on mobile */
@@ -186,15 +155,26 @@ a:hover {
         height: 250px !important;
     }
 
-    /* Stack news cards */
+    /* News cards full width */
     .news-item {
         margin-bottom: 15px;
     }
 
     /* Smaller buttons on mobile */
     .stButton>button {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         padding: 0.4rem 0.8rem;
+    }
+
+    /* Radio buttons (period selector) - horizontal scroll if needed */
+    div[data-testid="stRadio"]>div {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+    }
+
+    div[data-testid="stRadio"] label {
+        font-size: 0.8rem !important;
+        padding: 0.3rem 0.5rem !important;
     }
 }
 

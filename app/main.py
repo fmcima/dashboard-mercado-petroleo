@@ -27,23 +27,35 @@ def local_css(file_name):
 
 local_css(os.path.join(os.path.dirname(__file__), 'style.css'))
 
-# JavaScript to auto-close sidebar on mobile after button click
-st.markdown("""
+# Inject JavaScript to auto-close sidebar on mobile after button clicks
+# Using components.html which can execute scripts (unlike st.markdown)
+import streamlit.components.v1 as components
+
+components.html("""
 <script>
-    // Auto-close sidebar on mobile after button click
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth <= 768) {
-            const button = e.target.closest('button');
-            if (button && button.closest('[data-testid="stSidebar"]')) {
-                setTimeout(function() {
-                    const collapseBtn = document.querySelector('[data-testid="stSidebarCollapseButton"]');
-                    if (collapseBtn) collapseBtn.click();
-                }, 100);
-            }
+    // Wait for Streamlit to fully load
+    const observer = new MutationObserver(function(mutations, obs) {
+        const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
+        if (sidebar) {
+            // Add click listener to all buttons in sidebar
+            sidebar.addEventListener('click', function(e) {
+                if (e.target.closest('button') && window.parent.innerWidth <= 768) {
+                    // Find and click the collapse button after a short delay
+                    setTimeout(function() {
+                        const collapseBtn = window.parent.document.querySelector('[data-testid="stSidebarCollapsedControl"]') ||
+                                           window.parent.document.querySelector('button[kind="header"]');
+                        if (collapseBtn) {
+                            collapseBtn.click();
+                        }
+                    }, 300);
+                }
+            });
+            obs.disconnect();
         }
     });
+    observer.observe(window.parent.document.body, {childList: true, subtree: true});
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
 
 # Sidebar
 with st.sidebar:
