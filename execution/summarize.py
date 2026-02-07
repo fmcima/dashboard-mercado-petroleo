@@ -27,7 +27,18 @@ def summarize_text(text):
 
     try:
         client = genai.Client(api_key=api_key)
-        prompt = f"Você é um analista experiente do mercado de óleo e gás. Resuma a notícia a seguir em 3 pontos-chave, em português do Brasil. Seja conciso e direto.\n\nNotícia: {text}"
+        prompt = f"""Você é um analista experiente do mercado de óleo e gás. 
+Faça o seguinte:
+1. Traduza o título da notícia para português brasileiro
+2. Resuma a notícia em exatamente 3 pontos-chave numerados (1., 2., 3.)
+
+IMPORTANTE: 
+- Comece diretamente com o título traduzido, sem nenhuma introdução
+- Após o título, vá direto para os pontos numerados
+- Não use frases como "aqui estão os pontos" ou similar
+- Seja conciso e direto
+
+Notícia: {text}"""
         
         response = client.models.generate_content(
             model='gemini-flash-latest', 

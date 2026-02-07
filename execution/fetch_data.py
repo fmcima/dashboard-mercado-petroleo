@@ -25,44 +25,66 @@ RSS_FEEDS = {
 }
 
 def fetch_brent_price():
-    """Fetches the latest Brent Crude Oil price and daily change."""
+    """Fetches the latest Brent Crude Oil price and historical data.
+    Fetches both:
+    - Hourly data (1 year) for short-term views (1D, 5D, 1M, 6M, YTD, 1Y)
+    - Daily data (5 years) for long-term view (5Y)
+    """
     try:
         ticker = yf.Ticker(BRENT_TICKER)
-        # Fetch 1 year of history with hourly interval for better resolution
-        history = ticker.history(period="1y", interval="1h")
         
-        if len(history) < 1:
+        # Fetch hourly data for short-term (max ~730 days, we use 1 year)
+        logger.info("Fetching 1 year of hourly data...")
+        history_hourly = ticker.history(period="1y", interval="1h")
+        
+        # Fetch daily data for long-term (5 years)
+        logger.info("Fetching 5 years of daily data...")
+        history_daily = ticker.history(period="5y", interval="1d")
+        
+        if len(history_hourly) < 1 and len(history_daily) < 1:
             logger.warning("No price data found for Brent.")
             return None
 
-        # Calculate current metrics
-        latest = history.iloc[-1]
-        previous = history.iloc[-2] if len(history) > 1 else latest
+        # Use hourly data for current price metrics (more recent)
+        if len(history_hourly) >= 2:
+            latest = history_hourly.iloc[-1]
+            previous = history_hourly.iloc[-2]
+        else:
+            latest = history_daily.iloc[-1]
+            previous = history_daily.iloc[-2] if len(history_daily) > 1 else latest
         
         price = latest['Close']
         prev_price = previous['Close']
         change = price - prev_price
         pct_change = (change / prev_price) * 100
 
-        # Prepare historical data for the chart
-        # Reset index to make Date a column and convert to string for JSON serialization
-        history_reset = history.reset_index()
-        # Ensure column is named Date (yfinance with interval 1h usually names it 'Datetime' or index is datetime)
-        # We rename it to Date for consistency with frontend
-        if 'Datetime' in history_reset.columns:
-            history_reset.rename(columns={'Datetime': 'Date'}, inplace=True)
-            
-        history_data = history_reset[['Date', 'Close']].to_dict(orient='records')
+        # Process hourly history
+        hourly_data = []
+        if len(history_hourly) > 0:
+            history_reset = history_hourly.reset_index()
+            if 'Datetime' in history_reset.columns:
+                history_reset.rename(columns={'Datetime': 'Date'}, inplace=True)
+            hourly_data = history_reset[['Date', 'Close']].to_dict(orient='records')
+            for item in hourly_data:
+                item['Date'] = item['Date'].strftime("%Y-%m-%d %H:%M:%S")
         
-        # Helper string conversion for dates (include time for hourly precision)
-        for item in history_data:
-            item['Date'] = item['Date'].strftime("%Y-%m-%d %H:%M:%S")
+        # Process daily history
+        daily_data = []
+        if len(history_daily) > 0:
+            history_reset = history_daily.reset_index()
+            if 'Datetime' in history_reset.columns:
+                history_reset.rename(columns={'Datetime': 'Date'}, inplace=True)
+            daily_data = history_reset[['Date', 'Close']].to_dict(orient='records')
+            for item in daily_data:
+                item['Date'] = item['Date'].strftime("%Y-%m-%d %H:%M:%S")
 
         return {
             "current_price": round(price, 2),
             "change": round(change, 2),
             "pct_change": round(pct_change, 2),
-            "history": history_data,
+            "history": hourly_data,  # Default for backward compatibility
+            "history_hourly": hourly_data,  # Hourly for short-term views
+            "history_daily": daily_data,  # Daily for 5Y view
             "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
     except Exception as e:

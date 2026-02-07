@@ -34,8 +34,6 @@ with st.sidebar:
     st.markdown("---")
     st.write("**Menu**")
     st.button("Dashboard", width="stretch")
-    st.button("Market Data", width="stretch")
-    st.button("News Feed", width="stretch")
     st.markdown("---")
     if st.button("🔄 Atualizar Dados"):
         with st.spinner("Atualizando dados..."):
@@ -89,14 +87,21 @@ else:
     st.subheader("📈 Análise de Preço")
     
     if brent and 'history' in brent:
-        # Prepare Data
-        history_df = pd.DataFrame(brent['history'])
-        history_df['Date'] = pd.to_datetime(history_df['Date'])
+        # Time Range Selector
+        range_options = ["1D", "5D", "1M", "6M", "YTD", "1Y", "5Y"]
+        selected_range = st.radio("Período", range_options, index=6, horizontal=True, label_visibility="collapsed")
         
-        # Time Range Selector
-        # Time Range Selector
-        range_options = ["1D", "5D", "1M", "6M", "YTD", "1Y"]
-        selected_range = st.radio("Período", range_options, index=5, horizontal=True, label_visibility="collapsed")
+        # Select appropriate data source based on range
+        if selected_range == "5Y":
+            # Use daily data for 5Y view
+            history_data = brent.get('history_daily', brent['history'])
+        else:
+            # Use hourly data for short-term views
+            history_data = brent.get('history_hourly', brent['history'])
+        
+        # Prepare Data
+        history_df = pd.DataFrame(history_data)
+        history_df['Date'] = pd.to_datetime(history_df['Date'])
 
         # Filter Logic
         end_date = history_df['Date'].max()
@@ -115,8 +120,10 @@ else:
                 start_date = end_date - pd.Timedelta(days=180)
             elif selected_range == "YTD":
                 start_date = pd.Timestamp(year=end_date.year, month=1, day=1)
-            else: # 1Y
+            elif selected_range == "1Y":
                 start_date = end_date - pd.Timedelta(days=365)
+            else: # 5Y
+                start_date = end_date - pd.Timedelta(days=365*5)
 
             filtered_df = history_df[history_df['Date'] >= start_date]
 
@@ -139,20 +146,35 @@ else:
         fig.add_hline(y=avg_price, line_dash="dot", line_color="red", opacity=0.7, line_width=1, annotation_text=f"Média: ${avg_price:.2f}", annotation_position="top left")
 
         # Vertical Separation Lines
-        v_dates = []
         if selected_range == "1D":
             v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="h")
+            for date in v_dates:
+                fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="gray", opacity=0.2)
         elif selected_range == "5D":
-            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="D") # Daily
+            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="D")
+            for date in v_dates:
+                fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="gray", opacity=0.2)
         elif selected_range == "1M":
-            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="D") # Daily
+            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="D")
+            for date in v_dates:
+                fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="gray", opacity=0.2)
         elif selected_range == "6M":
-            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="MS") # Monthly Start
+            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="MS")
+            for date in v_dates:
+                fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="gray", opacity=0.2)
         elif selected_range in ["YTD", "1Y"]:
-            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="MS") # Monthly Start
-
-        for date in v_dates:
-            fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="gray", opacity=0.2)
+            v_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="MS")
+            for date in v_dates:
+                fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="gray", opacity=0.2)
+        elif selected_range == "5Y":
+            # Yearly separators (bold)
+            yearly_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="YS")
+            for date in yearly_dates:
+                fig.add_vline(x=date, line_width=2, line_dash="solid", line_color="gray", opacity=0.5)
+            # Monthly separators (subtle)
+            monthly_dates = pd.date_range(start=filtered_df['Date'].min(), end=filtered_df['Date'].max(), freq="MS")
+            for date in monthly_dates:
+                fig.add_vline(x=date, line_width=1, line_dash="dot", line_color="gray", opacity=0.1)
 
         # Calculate dynamic range with padding
         y_min = filtered_df['Close'].min()
@@ -221,15 +243,20 @@ else:
                 """, unsafe_allow_html=True)
                 
                 # Summarize Button
-                if st.button(f"✨ Resumir c/ IA", key=f"btn_{index}"):
+                if st.button(f"✨ Resumir com IA", key=f"btn_{index}"):
                     with st.spinner("Gerando resumo..."):
                         # In a real app, calling OpenAI here directly. 
                         # Ideally, this should update the JSON in background.
                         # For MVP, on-the-fly call:
                         summary = summarize_text(item['summary'] + " " + item['title'])
+                        # Format: remove ** markers and put each numbered topic on new line
+                        formatted_summary = summary.replace("**", "")
+                        formatted_summary = formatted_summary.replace("1.", "<br><br>1.")
+                        formatted_summary = formatted_summary.replace("2.", "<br><br>2.")
+                        formatted_summary = formatted_summary.replace("3.", "<br><br>3.")
                         st.markdown(f"""
                         <div style="background-color: #0d3b66; color: white; padding: 15px; border-radius: 8px; border: 1px solid #1c6ea4; margin-top: 10px;">
-                            <strong>Resumo:</strong> {summary}
+                            <strong>Resumo:</strong> {formatted_summary}
                         </div>
                         """, unsafe_allow_html=True)
 
