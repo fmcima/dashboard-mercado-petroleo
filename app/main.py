@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Dashboard Petróleo",
     page_icon="🛢️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"  # Start collapsed for mobile
 )
 
 # Load Custom CSS
@@ -26,6 +26,24 @@ def local_css(file_name):
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 local_css(os.path.join(os.path.dirname(__file__), 'style.css'))
+
+# JavaScript to auto-close sidebar on mobile after button click
+st.markdown("""
+<script>
+    // Auto-close sidebar on mobile after button click
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+            const button = e.target.closest('button');
+            if (button && button.closest('[data-testid="stSidebar"]')) {
+                setTimeout(function() {
+                    const collapseBtn = document.querySelector('[data-testid="stSidebarCollapseButton"]');
+                    if (collapseBtn) collapseBtn.click();
+                }, 100);
+            }
+        }
+    });
+</script>
+""", unsafe_allow_html=True)
 
 # Sidebar
 with st.sidebar:

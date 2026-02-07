@@ -6,8 +6,10 @@
 /* Global Styles */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #0e1118; /* Dark Background */
-    color: #e6e6e6; /* Light Text */
+    background-color: #0e1118;
+    /* Dark Background */
+    color: #e6e6e6;
+    /* Light Text */
 }
 
 /* Streamlit Specific Overrides */
@@ -16,14 +18,22 @@ body {
 }
 
 /* Titles and Headers */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     color: #ffffff;
     font-weight: 600;
 }
 
 /* Cards (using Streamlit containers/columns as proxies) */
-div[data-testid="stMetric"], div.css-1r6slb0, .css-1r6slb0 {
-    background-color: #161b22; /* Card Background */
+div[data-testid="stMetric"],
+div.css-1r6slb0,
+.css-1r6slb0 {
+    background-color: #161b22;
+    /* Card Background */
     padding: 1rem;
     border-radius: 12px;
     border: 1px solid #30363d;
@@ -52,7 +62,7 @@ section[data-testid="stSidebar"] {
 }
 
 /* Buttons */
-.stButton > button {
+.stButton>button {
     background-color: #238636;
     color: white;
     border: none;
@@ -62,7 +72,7 @@ section[data-testid="stSidebar"] {
     transition: background-color 0.2s;
 }
 
-.stButton > button:hover {
+.stButton>button:hover {
     background-color: #2ea043;
 }
 
@@ -71,6 +81,7 @@ a {
     color: #58a6ff;
     text-decoration: none;
 }
+
 a:hover {
     text-decoration: underline;
 }
@@ -94,4 +105,107 @@ a:hover {
 .news-meta {
     font-size: 0.85em;
     color: #8b949e;
+}
+
+/* ============================================
+   MOBILE HAMBURGER MENU
+   ============================================ */
+
+/* Mobile breakpoint: 768px and below */
+@media (max-width: 768px) {
+
+    /* Hide default sidebar on mobile - it will slide in when toggled */
+    section[data-testid="stSidebar"] {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 999;
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 280px !important;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Show sidebar when expanded (Streamlit adds this attribute) */
+    section[data-testid="stSidebar"][aria-expanded="true"] {
+        transform: translateX(0);
+    }
+
+    /* Hamburger button styling - Streamlit's default collapse button */
+    button[data-testid="stSidebarCollapseButton"],
+    button[data-testid="collapsedControl"] {
+        position: fixed !important;
+        top: 10px !important;
+        left: 10px !important;
+        z-index: 1000 !important;
+        background-color: #238636 !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        border: none !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    button[data-testid="stSidebarCollapseButton"]:hover,
+    button[data-testid="collapsedControl"]:hover {
+        background-color: #2ea043 !important;
+    }
+
+    /* Overlay when menu is open */
+    section[data-testid="stSidebar"][aria-expanded="true"]::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 280px;
+        width: calc(100vw - 280px);
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+
+    /* Adjust main content area */
+    .main .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        padding-top: 60px !important;
+    }
+
+    /* Mobile-friendly title */
+    h1 {
+        font-size: 1.5rem !important;
+    }
+
+    /* Stack metrics vertically on mobile */
+    div[data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+
+    /* Smaller chart on mobile */
+    .js-plotly-plot {
+        height: 250px !important;
+    }
+
+    /* Stack news cards */
+    .news-item {
+        margin-bottom: 15px;
+    }
+
+    /* Smaller buttons on mobile */
+    .stButton>button {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    section[data-testid="stSidebar"] {
+        width: 250px !important;
+    }
+
+    .main .block-container {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
 }
