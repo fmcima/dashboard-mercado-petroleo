@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from execution.utils import load_json
 from execution.summarize import summarize_text
+from execution import fetch_data # Import the module
 
 # Page Configuration
 st.set_page_config(
@@ -37,9 +38,22 @@ with st.sidebar:
     st.button("News Feed", width="stretch")
     st.markdown("---")
     if st.button("🔄 Atualizar Dados"):
-        # This is a bit hacky, directly running the script, but works for MVP
-        os.system("python execution/fetch_data.py")
+        with st.spinner("Atualizando dados..."):
+            fetch_data.main() # Direct call
         st.success("Dados atualizados!")
+        st.rerun()
+
+# Main Content
+st.title("Dashboard de Mercado - Brent Crude")
+
+# Load Data
+data = load_json()
+
+# Auto-fetch if no data (first run on cloud)
+if not data:
+    with st.spinner("Primeira execução: Buscando dados..."):
+        fetch_data.main()
+        data = load_json() # Reload data
         st.rerun()
 
 # Main Content
