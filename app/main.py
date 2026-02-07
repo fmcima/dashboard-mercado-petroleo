@@ -56,11 +56,7 @@ if not data:
         data = load_json() # Reload data
         st.rerun()
 
-# Main Content
-st.title("Dashboard de Mercado - Brent Crude")
 
-# Load Data
-data = load_json()
 
 if not data:
     st.warning("Nenhum dado encontrado. Por favor, clique em 'Atualizar Dados' na barra lateral.")
