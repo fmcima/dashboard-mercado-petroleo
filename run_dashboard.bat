@@ -1,0 +1,6 @@
+@echo off
+echo Buscando dados atualizados...
+python execution/fetch_data.py
+echo Iniciando Dashboard...
+python -m streamlit run app/main.py
+pause

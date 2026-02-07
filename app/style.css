@@ -1,0 +1,97 @@
+/* Main Dashboard Style */
+
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Global Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0e1118; /* Dark Background */
+    color: #e6e6e6; /* Light Text */
+}
+
+/* Streamlit Specific Overrides */
+.stApp {
+    background-color: #0e1118;
+}
+
+/* Titles and Headers */
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Cards (using Streamlit containers/columns as proxies) */
+div[data-testid="stMetric"], div.css-1r6slb0, .css-1r6slb0 {
+    background-color: #161b22; /* Card Background */
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #30363d;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Metric Values */
+div[data-testid="stMetricValue"] {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* Green generic for positive values (will handle logic in python) */
+.metric-positive {
+    color: #00E396 !important;
+}
+
+.metric-negative {
+    color: #FF4560 !important;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #0d1117;
+    border-right: 1px solid #30363d;
+}
+
+/* Buttons */
+.stButton > button {
+    background-color: #238636;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.stButton > button:hover {
+    background-color: #2ea043;
+}
+
+/* Links */
+a {
+    color: #58a6ff;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+/* News Feed Items */
+.news-item {
+    background-color: #161b22;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border-left: 4px solid #58a6ff;
+}
+
+.news-title {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+.news-meta {
+    font-size: 0.85em;
+    color: #8b949e;
+}
